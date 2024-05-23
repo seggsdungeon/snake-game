@@ -1,4 +1,9 @@
-import pygame, sys, time, random
+import pygame, sys, time, random, json, tkinter, os
+
+leaderboard_file = 'leaderboard.json'
+if not os.path.exists(leaderboard_file):
+    with open(leaderboard_file, 'w') as file:
+        json.dump([], file)
 
 # Difficulties
 DIFFICULTY_EASY = 10
@@ -21,7 +26,7 @@ else:
     print('[+] Game successfully initialised')
 
 
-pygame.display.set_caption('Snake Eater')
+pygame.display.set_caption('Snake')
 game_window = pygame.display.set_mode((frame_size_x, frame_size_y))
 
 black = pygame.Color(0, 0, 0)
@@ -48,7 +53,7 @@ score = 0
 # Game Over
 def game_over():
     my_font = pygame.font.SysFont('times new roman', 90)
-    game_over_surface = my_font.render('YOU DIED', True, red)
+    game_over_surface = my_font.render('GAME OVER', True, red)
     game_over_rect = game_over_surface.get_rect()
     game_over_rect.midtop = (frame_size_x/2, frame_size_y/4)
     game_window.fill(black)
@@ -57,8 +62,69 @@ def game_over():
     pygame.display.flip()
     time.sleep(3)
     pygame.quit()
-    sys.exit()
+    enter_name()
 
+# Load leaderboard data
+def load_leaderboard(file_path='leaderboard.json'):
+    with open(file_path, 'r') as file:
+        return json.load(file)
+
+# Save leaderboard data
+def save_leaderboard(file_path, data):
+    with open(file_path, 'w') as file:
+        json.dump(data, file, indent=4)
+
+# Add entry to leaderboard and sort by score
+def add_entry(name, score, file_path='leaderboard.json'):
+    if name == "":
+        return
+    leaderboard = load_leaderboard(file_path)
+    leaderboard.append({'name': name, 'score': score})
+    leaderboard.sort(key=lambda x: x['score'], reverse=True)
+    save_leaderboard(file_path, leaderboard)
+
+def enter_name():
+    root = tkinter.Tk()
+    root.title("Rangliste")
+    center_window(root, 300, 200)
+
+    label = tkinter.Label(root, text="Gebe deinen Namen ein:")
+    label.pack(padx=20, pady=(20, 0))
+
+    entry = tkinter.Entry(root)
+    entry.pack(padx=20, pady=(0, 20))
+
+    button = tkinter.Button(root, text="Submit", command=lambda: on_submit(entry.get(), score, root))
+    button.pack(pady=(0, 20))
+
+    root.mainloop()
+
+def on_submit(name, score, root):
+    add_entry(name, score)
+    show_leaderboard(root)
+
+
+def show_leaderboard(root):
+    for widget in root.winfo_children():
+        widget.destroy()
+
+    leaderboard = load_leaderboard()
+    string = ""
+
+    for index, entry in enumerate(leaderboard, start=1):
+        if index <= 10:
+            string += f"{index}. {entry['name']} - {entry['score']}\n"
+
+    new_label = tkinter.Label(root, text=string.strip())
+    new_label.pack(padx=20, pady=20)
+
+# Center tkinter window
+def center_window(window, width, height):
+    screen_width = window.winfo_screenwidth()
+    screen_height = window.winfo_screenheight()
+    x = (screen_width // 2) - (width // 2)
+    y = (screen_height // 2) - (height // 2)
+    window.geometry(f'{width}x{height}+{x}+{y}')
 
 # Score
 def show_score(choice, color, font, size):
