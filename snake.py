@@ -7,10 +7,10 @@ if not os.path.exists(leaderboard_file):
 
 # Difficulties
 DIFFICULTY_EASY = 10
-DIFFICULTY_MEDIUM = 25
-DIFFICULTY_HARD = 40
-DIFFICULTY_HARDER = 60
-DIFFICULTY_IMPOSSIBLE = 120
+DIFFICULTY_MEDIUM = 15
+DIFFICULTY_HARD = 20
+DIFFICULTY_HARDER = 30
+DIFFICULTY_IMPOSSIBLE = 100
 
 # Difficulty settings
 difficulty = DIFFICULTY_EASY
@@ -32,7 +32,8 @@ game_window = pygame.display.set_mode((frame_size_x, frame_size_y))
 black = pygame.Color(0, 0, 0)
 white = pygame.Color(255, 255, 255)
 red = pygame.Color(255, 0, 0)
-green = pygame.Color(0, 255, 0)
+green = pygame.Color(255, 165, 0)
+# green = pygame.Color(0, 255, 0)
 blue = pygame.Color(0, 0, 255)
 
 
@@ -103,7 +104,6 @@ def on_submit(name, score, root):
     add_entry(name, score)
     show_leaderboard(root)
 
-
 def show_leaderboard(root):
     for widget in root.winfo_children():
         widget.destroy()
@@ -131,13 +131,10 @@ def show_score(choice, color, font, size):
     score_font = pygame.font.SysFont(font, size)
     score_surface = score_font.render('Score : ' + str(score), True, color)
     score_rect = score_surface.get_rect()
-    if choice == 1:
-        score_rect.midtop = (frame_size_x/10, 15)
-    else:
-        score_rect.midtop = (frame_size_x/2, frame_size_y/1.25)
+    score_rect.midtop = (frame_size_x/2, frame_size_y/1.25)
     game_window.blit(score_surface, score_rect)
-    # pygame.display.flip()
 
+idle = True
 
 # Main logic
 while True:
@@ -150,15 +147,30 @@ while True:
             # W -> Up; S -> Down; A -> Left; D -> Right
             if event.key == pygame.K_UP or event.key == ord('w'):
                 change_to = 'UP'
+                idle = False
             if event.key == pygame.K_DOWN or event.key == ord('s'):
                 change_to = 'DOWN'
+                idle = False
             if event.key == pygame.K_LEFT or event.key == ord('a'):
                 change_to = 'LEFT'
+                idle = False
             if event.key == pygame.K_RIGHT or event.key == ord('d'):
                 change_to = 'RIGHT'
+                idle = False
+            if event.key == ord('x'):
+                idle = True
             # Esc -> Create event to quit the game
             if event.key == pygame.K_ESCAPE:
                 pygame.event.post(pygame.event.Event(pygame.QUIT))
+
+    if idle == True and direction == "RIGHT":
+        change_to = "DOWN"
+    if idle == True and direction == "DOWN":
+        change_to = "LEFT"
+    if idle == True and direction == "LEFT":
+        change_to = "UP"
+    if idle == True and direction == "UP":
+        change_to = "RIGHT"
 
     # Making sure the snake cannot move in the opposite direction instantaneously
     if change_to == 'UP' and direction != 'DOWN':
@@ -218,6 +230,15 @@ while True:
     
     # Refresh game screen
     pygame.display.update()
-    
+
+    match score:
+        case 10: 
+            difficulty = DIFFICULTY_MEDIUM
+        case 20: 
+            difficulty = DIFFICULTY_HARD
+        case 50: 
+            difficulty = DIFFICULTY_HARDER
+        case 100: 
+            difficulty = DIFFICULTY_IMPOSSIBLE
     # Refresh rate
     fps_controller.tick(difficulty)

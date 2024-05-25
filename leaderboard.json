@@ -1,1 +1,50 @@
-[]
+[
+  {
+    "name": "Tom",
+    "score": 41
+  },
+  {
+    "name": "David",
+    "score": 31
+  },
+  {
+    "name": "Sebastian",
+    "score": 27
+  },
+  {
+    "name": "Justin",
+    "score": 26
+  },
+  {
+    "name": "Luis",
+    "score": 20
+  },
+  {
+    "name": "Mad Max",
+    "score": 18
+  },
+  {
+    "name": "Jan Niklas",
+    "score": 15
+  },
+  {
+    "name": "Yevhenii",
+    "score": 13
+  },
+  {
+    "name": "Felix",
+    "score": 10
+  },
+  {
+    "name": "Dascha",
+    "score": 9
+  },
+  {
+    "name": "Tim",
+    "score": 8
+  },
+  {
+    "name": "lotte",
+    "score": 5
+  }
+]
