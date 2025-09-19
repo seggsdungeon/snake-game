@@ -1,9 +1,13 @@
-import pygame, sys, time, random, json, tkinter, os
+import pygame, sys, time, random, json, tkinter, os, ctypes
+
+ctypes.windll.user32.SetProcessDPIAware()  
 
 leaderboard_file = 'leaderboard.json'
 if not os.path.exists(leaderboard_file):
     with open(leaderboard_file, 'w') as file:
         json.dump([], file)
+
+CELL_SIZE = 40;
 
 # Difficulties
 DIFFICULTY_EASY = 10
@@ -15,8 +19,8 @@ DIFFICULTY_IMPOSSIBLE = 100
 # Difficulty settings
 difficulty = DIFFICULTY_EASY
 
-frame_size_x = 720
-frame_size_y = 480
+frame_size_x = 1920
+frame_size_y = 1200
 
 check_errors = pygame.init()
 if check_errors[1] > 0:
@@ -39,10 +43,10 @@ blue = pygame.Color(0, 0, 255)
 
 fps_controller = pygame.time.Clock()
 
-snake_pos = [100, 50]
-snake_body = [[100, 50], [100-10, 50], [100-(2*10), 50]]
+snake_pos = [10*CELL_SIZE, 5*CELL_SIZE]
+snake_body = [[10*CELL_SIZE, 5*CELL_SIZE], [(10-1)*CELL_SIZE, 5*CELL_SIZE], [(10-2)*CELL_SIZE, 5*CELL_SIZE]]
 
-food_pos = [random.randrange(1, (frame_size_x//10)) * 10, random.randrange(1, (frame_size_y//10)) * 10]
+food_pos = [random.randrange(1, (frame_size_x//CELL_SIZE)) * CELL_SIZE, random.randrange(1, (frame_size_y//CELL_SIZE)) * CELL_SIZE]
 food_spawn = True
 
 direction = 'RIGHT'
@@ -59,7 +63,7 @@ def game_over():
     game_over_rect.midtop = (frame_size_x/2, frame_size_y/4)
     game_window.fill(black)
     game_window.blit(game_over_surface, game_over_rect)
-    show_score(0, red, 'times', 20)
+    show_score(0, red, 'times', int(20*(CELL_SIZE/10)))
     pygame.display.flip()
     time.sleep(3)
     pygame.quit()
@@ -184,13 +188,13 @@ while True:
 
     # Moving the snake
     if direction == 'UP':
-        snake_pos[1] -= 10
+        snake_pos[1] -= CELL_SIZE
     if direction == 'DOWN':
-        snake_pos[1] += 10
+        snake_pos[1] += CELL_SIZE
     if direction == 'LEFT':
-        snake_pos[0] -= 10
+        snake_pos[0] -= CELL_SIZE
     if direction == 'RIGHT':
-        snake_pos[0] += 10
+        snake_pos[0] += CELL_SIZE
 
     # Snake body growing mechanism
     snake_body.insert(0, list(snake_pos))
@@ -202,23 +206,23 @@ while True:
 
     # Spawning food on the screen
     if not food_spawn:
-        food_pos = [random.randrange(1, (frame_size_x//10)) * 10, random.randrange(1, (frame_size_y//10)) * 10]
+        food_pos = [random.randrange(1, (frame_size_x//CELL_SIZE)) * CELL_SIZE, random.randrange(1, (frame_size_y//CELL_SIZE)) * CELL_SIZE]
     food_spawn = True
 
     # The snake
     game_window.fill(black)
     for pos in snake_body:
-        pygame.draw.rect(game_window, green, pygame.Rect(pos[0], pos[1], 10, 10))
+        pygame.draw.rect(game_window, green, pygame.Rect(pos[0], pos[1], CELL_SIZE, CELL_SIZE))
 
     # Snake food
-    pygame.draw.rect(game_window, white, pygame.Rect(food_pos[0], food_pos[1], 10, 10))
+    pygame.draw.rect(game_window, white, pygame.Rect(food_pos[0], food_pos[1], CELL_SIZE, CELL_SIZE))
 
     # Game Over conditions
     
     # Getting out of bounds
-    if snake_pos[0] < 0 or snake_pos[0] > frame_size_x-10:
+    if snake_pos[0] < 0 or snake_pos[0] > frame_size_x-CELL_SIZE:
         game_over()
-    if snake_pos[1] < 0 or snake_pos[1] > frame_size_y-10:
+    if snake_pos[1] < 0 or snake_pos[1] > frame_size_y-CELL_SIZE:
         game_over()
     
     # Touching the snake body
@@ -226,7 +230,7 @@ while True:
         if snake_pos[0] == block[0] and snake_pos[1] == block[1]:
             game_over()
 
-    show_score(1, white, 'consolas', 20)
+    show_score(1, white, 'consolas', int(20*(CELL_SIZE/10)))
     
     # Refresh game screen
     pygame.display.update()
